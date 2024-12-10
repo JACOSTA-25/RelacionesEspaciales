@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RELACIONES ESPACIALES</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      background-color: #f4f4f4;
+    }
+    header {
+      width: 100%;
+      background: #333;
+      color: #fff;
+      text-align: center;
+      padding: 10px 0;
+      position: fixed;
+      top: 0;
+      z-index: 10;
+    }
+    header #timer {
+      font-size: 1.5em;
+      margin: 0;
+    }
+    iframe {
+      margin-top: 60px; /* Para evitar que el iframe quede detrás del header */
+      width: 100%;
+      height: calc(100vh - 60px);
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+   <!-- <h1>Formulario con Temporizador</h1>-->
+    <p id="instruction">Tiempo restante:</p>
+    <p id="timer">00:00</p>
+  </header>
+
+  <!-- Iframe para incrustar el formulario -->
+  <iframe id="form-iframe" src="https://forms.gle/58FAhqrWqxsoAVQv9"></iframe> <!-- Reemplaza FORM_ID con el ID de tu formulario -->
+
+  <script>
+    const TOTAL_TIME = 30 * 60; // 30 minutos en segundos
+    const timerElement = document.getElementById("timer");
+
+    // Función para obtener parámetros de la URL
+    function getUrlParameter(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    // Función para actualizar los parámetros de la URL
+    function updateUrlParameter(key, value) {
+      const url = new URL(window.location.href);
+      url.searchParams.set(key, value);
+      window.history.replaceState({}, "", url);
+    }
+
+    // Inicializar el temporizador
+    const startTimeParam = getUrlParameter("startTime");
+    let startTime = startTimeParam ? parseInt(startTimeParam) : Date.now();
+
+    if (!startTimeParam) {
+      // Si no hay parámetro en la URL, lo configuramos
+      updateUrlParameter("startTime", startTime);
+    }
+
+    // Función para calcular y actualizar el temporizador
+    function updateTimer() {
+      const now = Date.now();
+      const elapsed = Math.floor((now - startTime) / 1000); // Tiempo transcurrido en segundos
+      const remaining = TOTAL_TIME - elapsed; // Tiempo restante
+
+      if (remaining > 0) {
+        const minutes = Math.floor(remaining / 60);
+        const seconds = remaining % 60;
+        timerElement.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+      } else {
+        // Temporizador expirado
+        timerElement.textContent = "00:00";
+        finalizarFormulario();
+        clearInterval(timerInterval); // Detener la actualización del temporizador
+      }
+    }
+
+    // Función para finalizar el formulario
+    function finalizarFormulario() {
+      alert("El tiempo ha expirado. Este formulario ya no está disponible.");
+      document.getElementById("form-iframe").src = ""; // Limpia el iframe
+    }
+
+    // Actualizar el temporizador cada segundo
+    updateTimer();
+    const timerInterval = setInterval(updateTimer, 1000);
+  </script>
+</body>
+</html>
